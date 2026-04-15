@@ -1,0 +1,24 @@
+# Build artifacts
+*.exe
+*.obj
+*.res
+*.ilk
+*.pdb
+
+# IDE files
+.vscode/
+.vs/
+*.suo
+*.user
+
+# Claude
+.claude/
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
+*~
