@@ -11,8 +11,9 @@ A lightweight, customizable floating digital clock widget for Windows 10/11. Bui
 - **Customizable Display**:
   - 12-hour or 24-hour time format
   - Optional seconds display
-  - Adjustable transparency (0-255)
-  - Custom text color (RGB picker or theme-based)
+  - Separate background and text opacity controls (NEW in v1.1)
+  - Custom text color (RGB picker with live preview)
+  - Seven font choices: Segoe UI, Arial, Calibri, Consolas, Courier New, Times New Roman, Verdana (NEW in v1.1)
   - Three font sizes (Small, Medium, Large)
 - **Resizable**: Drag window edges to resize; font auto-scales
 - **Draggable**: Click and drag anywhere to reposition
@@ -121,8 +122,10 @@ Configure all aspects of the clock:
 - Always on top (clock stays above other windows)
 
 **Appearance**
-- Text Color: Click "Choose Color..." to select custom color
-- Transparency: Slider from 0 (invisible) to 255 (opaque)
+- Text Color: Click "Choose Color..." to select custom color (with live preview box)
+- Background Opacity: Slider from 0 (invisible) to 255 (opaque) - controls window transparency
+- Text Opacity: Slider from 0 (invisible) to 255 (opaque) - controls text transparency independently
+- Font: Choose from 7 popular fonts (Segoe UI, Arial, Calibri, Consolas, Courier New, Times New Roman, Verdana)
 - Font Size: Small, Medium, or Large (scales with window size)
 
 **Startup**
@@ -146,7 +149,9 @@ Stored values include:
 - Show seconds (yes/no)
 - Always on top (yes/no)
 - Text color (RGB value)
-- Transparency level (0-255)
+- Background transparency level (0-255)
+- Text alpha level (0-255) - NEW in v1.1
+- Font name (string) - NEW in v1.1
 - Font size (Small/Medium/Large)
 - Window position (X, Y)
 - Window size (Width, Height)
@@ -256,7 +261,7 @@ x86_64-w64-mingw32-g++ --version  # Verify installation
 
 - Single clock instance only
 - No multi-monitor position memory (uses primary monitor)
-- No custom font selection (uses Segoe UI)
+- Font selection limited to 7 pre-defined fonts
 - No date display
 - No alarm/reminder functionality
 
@@ -265,7 +270,7 @@ x86_64-w64-mingw32-g++ --version  # Verify installation
 Potential features for future versions:
 - Multiple clock instances with different time zones
 - Date display option
-- Custom font selection
+- Dynamic font selection from system fonts
 - Themes/skins support
 - Keyboard shortcuts
 - Animation effects
@@ -315,6 +320,23 @@ For issues, questions, or suggestions:
 - Review the troubleshooting section above
 
 ## Changelog
+
+### Version 1.1 (Bug Fixes and Enhancements)
+**Bug Fixes:**
+- ✓ Apply button now updates clock immediately (no longer waits for next timer tick)
+- ✓ Color preview box in settings dialog updates correctly when color is chosen
+- ✓ Preview section updates properly for all setting changes
+
+**Enhancements:**
+- ✓ Separate background and text opacity controls for better readability
+- ✓ Font selection: Choose from 7 popular fonts (Segoe UI, Arial, Calibri, Consolas, Courier New, Times New Roman, Verdana)
+- ✓ Improved settings dialog layout with clearer labels
+
+**Technical:**
+- Added `textAlpha` setting for independent text transparency
+- Added `fontName` setting for font selection
+- Enhanced dialog with new controls and better organization
+- All settings backward compatible with v1.0
 
 ### Version 1.0 (Initial Release)
 - Floating, transparent clock window

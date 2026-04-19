@@ -22,6 +22,8 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARA
 INT_PTR CALLBACK AboutDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 void UpdatePreview(HWND hwndDlg, const ClockSettings* settings);
 void UpdateAlphaLabel(HWND hwndDlg, int alpha);
+void UpdateTextAlphaLabel(HWND hwndDlg, int alpha);
+void UpdateColorPreviewBox(HWND hwndDlg, COLORREF color);
 
 // Main window procedure for hidden window
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -178,12 +180,35 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARA
                           settingsMgr->IsStartupEnabled() ? 
                           BST_CHECKED : BST_UNCHECKED);
             
-            // Initialize transparency slider
+            // Initialize background transparency slider
             SendDlgItemMessage(hwndDlg, IDC_SLIDER_ALPHA, TBM_SETRANGE,
                              TRUE, MAKELONG(0, 255));
             SendDlgItemMessage(hwndDlg, IDC_SLIDER_ALPHA, TBM_SETPOS,
                              TRUE, tempSettings.transparency);
             UpdateAlphaLabel(hwndDlg, tempSettings.transparency);
+            
+            // Initialize text alpha slider
+            SendDlgItemMessage(hwndDlg, IDC_SLIDER_TEXT_ALPHA, TBM_SETRANGE,
+                             TRUE, MAKELONG(0, 255));
+            SendDlgItemMessage(hwndDlg, IDC_SLIDER_TEXT_ALPHA, TBM_SETPOS,
+                             TRUE, tempSettings.textAlpha);
+            UpdateTextAlphaLabel(hwndDlg, tempSettings.textAlpha);
+            
+            // Initialize font name combo
+            const wchar_t* fonts[] = {
+                L"Segoe UI", L"Arial", L"Calibri", L"Consolas",
+                L"Courier New", L"Times New Roman", L"Verdana"
+            };
+            int selectedFont = 0;
+            for (int i = 0; i < 7; i++) {
+                SendDlgItemMessage(hwndDlg, IDC_COMBO_FONTNAME, CB_ADDSTRING,
+                                 0, (LPARAM)fonts[i]);
+                if (wcscmp(tempSettings.fontName, fonts[i]) == 0) {
+                    selectedFont = i;
+                }
+            }
+            SendDlgItemMessage(hwndDlg, IDC_COMBO_FONTNAME, CB_SETCURSEL,
+                             selectedFont, 0);
             
             // Initialize font size combo
             SendDlgItemMessage(hwndDlg, IDC_COMBO_FONTSIZE, CB_ADDSTRING,
@@ -195,7 +220,8 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARA
             SendDlgItemMessage(hwndDlg, IDC_COMBO_FONTSIZE, CB_SETCURSEL,
                              tempSettings.fontSize, 0);
             
-            // Update preview
+            // Update preview and color box
+            UpdateColorPreviewBox(hwndDlg, tempSettings.textColor);
             UpdatePreview(hwndDlg, &tempSettings);
             
             return TRUE;
@@ -216,6 +242,7 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARA
                     
                     if (ChooseColor(&cc)) {
                         tempSettings.textColor = cc.rgbResult;
+                        UpdateColorPreviewBox(hwndDlg, tempSettings.textColor);
                         UpdatePreview(hwndDlg, &tempSettings);
                     }
                     break;
@@ -231,6 +258,18 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARA
                 case IDC_CHECK_SECONDS:
                     tempSettings.showSeconds = (IsDlgButtonChecked(hwndDlg, IDC_CHECK_SECONDS) == BST_CHECKED);
                     UpdatePreview(hwndDlg, &tempSettings);
+                    break;
+                
+                case IDC_COMBO_FONTNAME:
+                    if (HIWORD(wParam) == CBN_SELCHANGE) {
+                        int sel = SendDlgItemMessage(hwndDlg, IDC_COMBO_FONTNAME, CB_GETCURSEL, 0, 0);
+                        if (sel != CB_ERR) {
+                            wchar_t fontName[32];
+                            SendDlgItemMessage(hwndDlg, IDC_COMBO_FONTNAME, CB_GETLBTEXT, sel, (LPARAM)fontName);
+                            wcscpy_s(tempSettings.fontName, 32, fontName);
+                            UpdatePreview(hwndDlg, &tempSettings);
+                        }
+                    }
                     break;
                 
                 case IDC_COMBO_FONTSIZE:
@@ -254,6 +293,11 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARA
                     settingsMgr->SaveSettings();
                     settingsMgr->SetStartupEnabled(startupEnabled);
                     
+                    // Apply settings to clock window immediately (fixes Apply button bug)
+                    if (g_clockWindow) {
+                        g_clockWindow->ApplySettings();
+                    }
+                    
                     if (LOWORD(wParam) == IDOK) {
                         EndDialog(hwndDlg, IDOK);
                     }
@@ -267,12 +311,20 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARA
             break;
         
         case WM_HSCROLL:
-            // Handle transparency slider
+            // Handle background transparency slider
             if ((HWND)lParam == GetDlgItem(hwndDlg, IDC_SLIDER_ALPHA)) {
                 int pos = SendDlgItemMessage(hwndDlg, IDC_SLIDER_ALPHA,
                                             TBM_GETPOS, 0, 0);
                 tempSettings.transparency = (BYTE)pos;
                 UpdateAlphaLabel(hwndDlg, pos);
+                UpdatePreview(hwndDlg, &tempSettings);
+            }
+            // Handle text alpha slider
+            else if ((HWND)lParam == GetDlgItem(hwndDlg, IDC_SLIDER_TEXT_ALPHA)) {
+                int pos = SendDlgItemMessage(hwndDlg, IDC_SLIDER_TEXT_ALPHA,
+                                            TBM_GETPOS, 0, 0);
+                tempSettings.textAlpha = (BYTE)pos;
+                UpdateTextAlphaLabel(hwndDlg, pos);
                 UpdatePreview(hwndDlg, &tempSettings);
             }
             break;
@@ -330,11 +382,34 @@ void UpdatePreview(HWND hwndDlg, const ClockSettings* settings) {
     SetDlgItemText(hwndDlg, IDC_STATIC_PREVIEW, timeStr);
 }
 
-// Helper function to update alpha label
+// Helper function to update background alpha label
 void UpdateAlphaLabel(HWND hwndDlg, int alpha) {
     wchar_t alphaStr[16];
     wsprintf(alphaStr, L"%d", alpha);
     SetDlgItemText(hwndDlg, IDC_STATIC_ALPHA_VALUE, alphaStr);
+}
+
+// Helper function to update text alpha label
+void UpdateTextAlphaLabel(HWND hwndDlg, int alpha) {
+    wchar_t alphaStr[16];
+    wsprintf(alphaStr, L"%d", alpha);
+    SetDlgItemText(hwndDlg, IDC_STATIC_TEXT_ALPHA_VALUE, alphaStr);
+}
+
+// Helper function to update color preview box
+void UpdateColorPreviewBox(HWND hwndDlg, COLORREF color) {
+    HWND hColorBox = GetDlgItem(hwndDlg, IDC_STATIC_COLOR_BOX);
+    if (hColorBox) {
+        HDC hdc = GetDC(hColorBox);
+        if (hdc) {
+            RECT rect;
+            GetClientRect(hColorBox, &rect);
+            HBRUSH hBrush = CreateSolidBrush(color);
+            FillRect(hdc, &rect, hBrush);
+            DeleteObject(hBrush);
+            ReleaseDC(hColorBox, hdc);
+        }
+    }
 }
 
 // Made with Bob

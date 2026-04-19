@@ -22,6 +22,9 @@
 #define IDC_STATIC_ALPHA_VALUE  2010
 #define IDC_STATIC_COLOR_BOX    2011
 #define IDAPPLY                 2012
+#define IDC_COMBO_FONTNAME      2013
+#define IDC_SLIDER_TEXT_ALPHA   2014
+#define IDC_STATIC_TEXT_ALPHA_VALUE 2015
 
 // Menu item IDs
 #define IDM_SHOW_HIDE           1001

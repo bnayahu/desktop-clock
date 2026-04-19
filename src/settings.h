@@ -19,8 +19,10 @@ struct ClockSettings {
     bool showSeconds;
     bool alwaysOnTop;
     COLORREF textColor;
-    BYTE transparency;
+    BYTE transparency;          // Background/window transparency
+    BYTE textAlpha;             // Text transparency (separate from background)
     FontSize fontSize;
+    wchar_t fontName[32];       // Font family name
     int windowX;
     int windowY;
     int windowWidth;

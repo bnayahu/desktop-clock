@@ -15,7 +15,9 @@ void SettingsManager::InitializeDefaults() {
     m_settings.alwaysOnTop = false;
     m_settings.textColor = GetSysColor(COLOR_WINDOWTEXT);
     m_settings.transparency = 255;
+    m_settings.textAlpha = 255;
     m_settings.fontSize = FONT_SIZE_MEDIUM;
+    wcscpy_s(m_settings.fontName, 32, L"Segoe UI");
     m_settings.windowX = CW_USEDEFAULT;
     m_settings.windowY = CW_USEDEFAULT;
     m_settings.windowWidth = 200;
@@ -97,6 +99,20 @@ void SettingsManager::LoadSettings() {
             }
         }
         
+        if (RegQueryValueEx(hKey, L"TextAlpha", NULL, &type, (LPBYTE)&value, &size) == ERROR_SUCCESS) {
+            if (type == REG_DWORD && value <= 255) {
+                m_settings.textAlpha = (BYTE)value;
+            }
+        }
+        
+        wchar_t fontName[32];
+        size = sizeof(fontName);
+        if (RegQueryValueEx(hKey, L"FontName", NULL, &type, (LPBYTE)fontName, &size) == ERROR_SUCCESS) {
+            if (type == REG_SZ) {
+                wcscpy_s(m_settings.fontName, 32, fontName);
+            }
+        }
+        
         RegCloseKey(hKey);
     }
     
@@ -161,6 +177,12 @@ void SettingsManager::SaveSettings() {
         
         value = m_settings.clockVisible ? 1 : 0;
         RegSetValueEx(hKey, L"ClockVisible", 0, REG_DWORD, (LPBYTE)&value, sizeof(DWORD));
+        
+        value = (DWORD)m_settings.textAlpha;
+        RegSetValueEx(hKey, L"TextAlpha", 0, REG_DWORD, (LPBYTE)&value, sizeof(DWORD));
+        
+        DWORD fontNameSize = (wcslen(m_settings.fontName) + 1) * sizeof(wchar_t);
+        RegSetValueEx(hKey, L"FontName", 0, REG_SZ, (LPBYTE)m_settings.fontName, fontNameSize);
         
         RegCloseKey(hKey);
     }

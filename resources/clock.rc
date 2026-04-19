@@ -7,7 +7,7 @@ IDI_CLOCK_ICON ICON "clock_icon.ico"
 IDI_TRAY_ICON  ICON "tray_icon.ico"
 
 // Settings Dialog
-IDD_SETTINGS DIALOGEX 0, 0, 300, 340
+IDD_SETTINGS DIALOGEX 0, 0, 300, 390
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Desktop Clock Settings"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -22,33 +22,42 @@ BEGIN
     GROUPBOX        "Window Options", -1, 7, 87, 286, 30
     AUTOCHECKBOX    "Always on top", IDC_CHECK_TOPMOST, 15, 102, 100, 10
     
-    GROUPBOX        "Appearance", -1, 7, 122, 286, 110
+    GROUPBOX        "Appearance", -1, 7, 122, 286, 160
     LTEXT           "Text Color:", -1, 15, 137, 50, 10
     PUSHBUTTON      "Choose Color...", IDC_BUTTON_COLOR, 70, 135, 80, 14
     CONTROL         "", IDC_STATIC_COLOR_BOX, "Static", SS_BLACKFRAME, 155, 135, 30, 14
     
-    LTEXT           "Transparency:", -1, 15, 162, 50, 10
-    CONTROL         "", IDC_SLIDER_ALPHA, "msctls_trackbar32", 
-                    TBS_HORZ | TBS_AUTOTICKS | WS_TABSTOP, 70, 160, 150, 20
+    LTEXT           "Background Opacity:", -1, 15, 162, 70, 10
+    CONTROL         "", IDC_SLIDER_ALPHA, "msctls_trackbar32",
+                    TBS_HORZ | TBS_AUTOTICKS | WS_TABSTOP, 90, 160, 130, 20
     LTEXT           "255", IDC_STATIC_ALPHA_VALUE, 225, 162, 30, 10
     
-    LTEXT           "Font Size:", -1, 15, 192, 50, 10
-    COMBOBOX        IDC_COMBO_FONTSIZE, 70, 190, 80, 60,
+    LTEXT           "Text Opacity:", -1, 15, 187, 70, 10
+    CONTROL         "", IDC_SLIDER_TEXT_ALPHA, "msctls_trackbar32",
+                    TBS_HORZ | TBS_AUTOTICKS | WS_TABSTOP, 90, 185, 130, 20
+    LTEXT           "255", IDC_STATIC_TEXT_ALPHA_VALUE, 225, 187, 30, 10
+    
+    LTEXT           "Font:", -1, 15, 217, 50, 10
+    COMBOBOX        IDC_COMBO_FONTNAME, 70, 215, 120, 100,
                     CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     
-    LTEXT           "(Drag window edges to resize)", -1, 15, 212, 200, 10
+    LTEXT           "Font Size:", -1, 15, 242, 50, 10
+    COMBOBOX        IDC_COMBO_FONTSIZE, 70, 240, 80, 60,
+                    CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     
-    GROUPBOX        "Startup", -1, 7, 237, 286, 30
+    LTEXT           "(Drag window edges to resize)", -1, 15, 262, 200, 10
+    
+    GROUPBOX        "Startup", -1, 7, 287, 286, 30
     AUTOCHECKBOX    "Start Desktop Clock when Windows starts",
-                    IDC_CHECK_STARTUP, 15, 252, 200, 10
+                    IDC_CHECK_STARTUP, 15, 302, 200, 10
     
-    GROUPBOX        "Preview", -1, 7, 272, 286, 40
-    LTEXT           "14:35", IDC_STATIC_PREVIEW, 15, 287, 270, 20,
+    GROUPBOX        "Preview", -1, 7, 322, 286, 40
+    LTEXT           "14:35", IDC_STATIC_PREVIEW, 15, 337, 270, 20,
                     SS_CENTER
     
-    DEFPUSHBUTTON   "OK", IDOK, 70, 320, 50, 14
-    PUSHBUTTON      "Cancel", IDCANCEL, 130, 320, 50, 14
-    PUSHBUTTON      "Apply", IDAPPLY, 190, 320, 50, 14
+    DEFPUSHBUTTON   "OK", IDOK, 70, 370, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 130, 370, 50, 14
+    PUSHBUTTON      "Apply", IDAPPLY, 190, 370, 50, 14
 END
 
 // About Dialog

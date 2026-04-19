@@ -94,8 +94,8 @@ bool ClockWindow::Create() {
         return false;
     }
     
-    // Set transparency
-    SetLayeredWindowAttributes(m_hwnd, 0, settings.transparency, LWA_ALPHA);
+    // Don't use SetLayeredWindowAttributes - we'll use UpdateLayeredWindow for per-pixel alpha
+    // This allows separate background and text transparency
     
     return true;
 }
@@ -218,10 +218,12 @@ void ClockWindow::OnPaint() {
     if (m_renderer) {
         RECT rect;
         GetClientRect(m_hwnd, &rect);
+        int width = rect.right - rect.left;
+        int height = rect.bottom - rect.top;
         
         // Ensure memory bitmap is correct size
-        if (m_memBitmap == NULL || 
-            rect.right != m_windowRect.right || 
+        if (m_memBitmap == NULL ||
+            rect.right != m_windowRect.right ||
             rect.bottom != m_windowRect.bottom) {
             
             if (m_memBitmap) {
@@ -229,17 +231,42 @@ void ClockWindow::OnPaint() {
                 DeleteObject(m_memBitmap);
             }
             
-            m_memBitmap = CreateCompatibleBitmap(hdc, rect.right, rect.bottom);
+            // Create 32-bit bitmap for per-pixel alpha
+            BITMAPINFO bmi = {};
+            bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+            bmi.bmiHeader.biWidth = width;
+            bmi.bmiHeader.biHeight = -height; // Top-down DIB
+            bmi.bmiHeader.biPlanes = 1;
+            bmi.bmiHeader.biBitCount = 32;
+            bmi.bmiHeader.biCompression = BI_RGB;
+            
+            void* pBits = NULL;
+            m_memBitmap = CreateDIBSection(hdc, &bmi, DIB_RGB_COLORS, &pBits, NULL, 0);
             m_oldBitmap = (HBITMAP)SelectObject(m_memDC, m_memBitmap);
             m_windowRect = rect;
         }
         
-        // Render to memory DC
+        // Render to memory DC with per-pixel alpha
         const ClockSettings& settings = m_settingsMgr->GetSettings();
         m_renderer->Render(m_memDC, &rect, settings);
         
-        // Copy to screen
-        BitBlt(hdc, 0, 0, rect.right, rect.bottom, m_memDC, 0, 0, SRCCOPY);
+        // Use UpdateLayeredWindow for per-pixel alpha blending
+        POINT ptSrc = {0, 0};
+        POINT ptDst = {rect.left, rect.top};
+        SIZE sizeWnd = {width, height};
+        BLENDFUNCTION blend = {};
+        blend.BlendOp = AC_SRC_OVER;
+        blend.BlendFlags = 0;
+        blend.SourceConstantAlpha = 255; // Don't multiply - use per-pixel alpha only
+        blend.AlphaFormat = AC_SRC_ALPHA; // Use per-pixel alpha from bitmap
+        
+        // Get window position
+        RECT windowRect;
+        GetWindowRect(m_hwnd, &windowRect);
+        ptDst.x = windowRect.left;
+        ptDst.y = windowRect.top;
+        
+        ::UpdateLayeredWindow(m_hwnd, hdc, &ptDst, &sizeWnd, m_memDC, &ptSrc, 0, &blend, ULW_ALPHA);
     }
     
     EndPaint(m_hwnd, &ps);
@@ -307,6 +334,10 @@ void ClockWindow::Show() {
         m_visible = true;
         StartTimer();
         
+        // Force initial render for layered window
+        InvalidateRect(m_hwnd, NULL, FALSE);
+        UpdateWindow(m_hwnd);
+        
         // Update settings
         ClockSettings& settings = m_settingsMgr->GetSettings();
         settings.clockVisible = true;
@@ -334,12 +365,9 @@ void ClockWindow::UpdateDisplay() {
 void ClockWindow::ApplySettings() {
     const ClockSettings& settings = m_settingsMgr->GetSettings();
     
-    // Update transparency
-    SetLayeredWindowAttributes(m_hwnd, 0, settings.transparency, LWA_ALPHA);
-    
     // Update always on top
     HWND insertAfter = settings.alwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST;
-    SetWindowPos(m_hwnd, insertAfter, 0, 0, 0, 0, 
+    SetWindowPos(m_hwnd, insertAfter, 0, 0, 0, 0,
                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
     
     // Restart timer with appropriate interval
@@ -348,7 +376,7 @@ void ClockWindow::ApplySettings() {
         StartTimer();
     }
     
-    // Force redraw
+    // Force redraw (transparency is applied in OnPaint via UpdateLayeredWindow)
     InvalidateRect(m_hwnd, NULL, FALSE);
 }
 

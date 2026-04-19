@@ -104,8 +104,9 @@ void ClockRenderer::Render(HDC hdc, const RECT* rect, const ClockSettings& setti
     graphics.SetSmoothingMode(SmoothingModeAntiAlias);
     graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
     
-    // Clear background (transparent)
-    graphics.Clear(Color(0, 0, 0, 0));
+    // Clear background with background transparency setting
+    // This creates the transparent background while text uses its own alpha
+    graphics.Clear(Color(settings.transparency, 0, 0, 0));
     
     // Get current time
     SYSTEMTIME st;
@@ -118,11 +119,11 @@ void ClockRenderer::Render(HDC hdc, const RECT* rect, const ClockSettings& setti
     // Calculate font size based on window size
     int fontSize = CalculateFontSize(rect, settings.fontSize);
     
-    // Create font
-    Font font(L"Segoe UI", (REAL)fontSize, FontStyleRegular, UnitPixel);
+    // Create font with user-selected font name
+    Font font(settings.fontName, (REAL)fontSize, FontStyleRegular, UnitPixel);
     
-    // Create brush with color and transparency
-    Color color(settings.transparency,
+    // Create brush with color and text alpha (separate from background transparency)
+    Color color(settings.textAlpha,
                GetRValue(settings.textColor),
                GetGValue(settings.textColor),
                GetBValue(settings.textColor));
