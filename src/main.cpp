@@ -336,8 +336,15 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARA
 // About dialog procedure
 INT_PTR CALLBACK AboutDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
-        case WM_INITDIALOG:
+        case WM_INITDIALOG: {
+            // Built from the version macros so this can never disagree with
+            // the version reported in the executable's file properties.
+            wchar_t versionText[64];
+            wsprintf(versionText, L"%s v%d.%d",
+                    APP_NAME, APP_VERSION_MAJOR, APP_VERSION_MINOR);
+            SetDlgItemText(hwndDlg, IDC_STATIC_ABOUT_VERSION, versionText);
             return TRUE;
+        }
             
         case WM_COMMAND:
             if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) {

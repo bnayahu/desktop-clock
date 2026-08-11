@@ -26,6 +26,9 @@
 #define IDC_SLIDER_TEXT_ALPHA   2014
 #define IDC_STATIC_TEXT_ALPHA_VALUE 2015
 
+// Control IDs for About Dialog
+#define IDC_STATIC_ABOUT_VERSION 2101
+
 // Menu item IDs
 #define IDM_SHOW_HIDE           1001
 #define IDM_SETTINGS            1002

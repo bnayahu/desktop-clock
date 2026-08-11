@@ -6,6 +6,36 @@
 IDI_CLOCK_ICON ICON "clock_icon.ico"
 IDI_TRAY_ICON  ICON "tray_icon.ico"
 
+// Version information (shown in the executable's Windows file properties)
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION    APP_VERSION_MAJOR,APP_VERSION_MINOR,0,0
+ PRODUCTVERSION APP_VERSION_MAJOR,APP_VERSION_MINOR,0,0
+ FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
+ FILEFLAGS      0x0L
+ FILEOS         VOS_NT_WINDOWS32
+ FILETYPE       VFT_APP
+ FILESUBTYPE    VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"    // U.S. English, Unicode
+        BEGIN
+            VALUE "CompanyName",      "Jonathan Bnayahu"
+            VALUE "FileDescription",  "Desktop Clock"
+            VALUE "FileVersion",      APP_VERSION_STR_FULL
+            VALUE "InternalName",     "DesktopClock"
+            VALUE "LegalCopyright",   APP_COPYRIGHT
+            VALUE "OriginalFilename", "DesktopClock.exe"
+            VALUE "ProductName",      "Desktop Clock"
+            VALUE "ProductVersion",   APP_VERSION_STR_FULL
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 0x04B0
+    END
+END
+
 // Settings Dialog
 IDD_SETTINGS DIALOGEX 0, 0, 300, 390
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
@@ -67,7 +97,7 @@ CAPTION "About Desktop Clock"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     ICON            IDI_CLOCK_ICON, -1, 14, 14, 21, 20
-    LTEXT           "Desktop Clock v1.1", -1, 50, 14, 200, 10
+    LTEXT           "Desktop Clock", IDC_STATIC_ABOUT_VERSION, 50, 14, 200, 10
     LTEXT           "", -1, 50, 28, 200, 1, SS_ETCHEDHORZ
     LTEXT           "A floating digital clock widget for Windows.", -1, 50, 35, 200, 10
     LTEXT           "", -1, 14, 50, 232, 1, SS_ETCHEDHORZ
