@@ -67,7 +67,7 @@ CAPTION "About Desktop Clock"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     ICON            IDI_CLOCK_ICON, -1, 14, 14, 21, 20
-    LTEXT           "Desktop Clock v1.0", -1, 50, 14, 200, 10
+    LTEXT           "Desktop Clock v1.1", -1, 50, 14, 200, 10
     LTEXT           "", -1, 50, 28, 200, 1, SS_ETCHEDHORZ
     LTEXT           "A floating digital clock widget for Windows.", -1, 50, 35, 200, 10
     LTEXT           "", -1, 14, 50, 232, 1, SS_ETCHEDHORZ
