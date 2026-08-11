@@ -4,7 +4,7 @@ A lightweight, customizable floating digital clock widget for Windows 10/11. Bui
 
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-blue)
 ![Release](https://img.shields.io/github/v/release/bnayahu/desktop-clock)
-![License](https://img.shields.io/badge/license-MIT-green)
+![License](https://img.shields.io/badge/license-Apache%202.0-green)
 
 Single executable, no installer, no runtime dependencies. Settings live in the registry, so the clock remembers how you left it.
 
@@ -143,6 +143,14 @@ Issues and pull requests are welcome. Please test changes on Windows 10 or 11, a
 
 ## Changelog
 
+### v1.2.0
+
+- Relicensed from MIT to the Apache License 2.0
+- The executable now carries Windows version information, so file properties show version, product name, and copyright
+- Version number is defined once in `resources/app_strings.h`; the About dialog and the version resource both derive from it
+
+No functional changes to the clock itself.
+
 ### v1.1.0
 
 **Fixes**
@@ -163,6 +171,8 @@ Initial release: floating transparent window, 12/24-hour format, optional second
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+Licensed under the Apache License, Version 2.0 — see [LICENSE](LICENSE).
+
+Releases up to and including v1.1.0 were published under the MIT License; that grant still applies to those versions.
 
 Built with the Win32 API, GDI+, and MinGW-w64.
