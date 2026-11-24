@@ -100,3 +100,12 @@ int SplitMainHeight(int clientHeight, int mainPercent) {
     if (mainPercent > WORLD_SPLIT_MAX) mainPercent = WORLD_SPLIT_MAX;
     return clientHeight * mainPercent / 100;
 }
+
+void StackRows(float rectTop, float rectHeight, float mainBaseline,
+               float worldHeight, float* mainY, float* worldY) {
+    float block = mainBaseline + worldHeight;
+    float top = rectTop + (rectHeight - block) / 2.0f;
+    if (top < rectTop) top = rectTop;
+    *mainY = top;
+    *worldY = top + mainBaseline;
+}

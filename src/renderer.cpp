@@ -177,33 +177,48 @@ void ClockRenderer::Render(HDC hdc, const RECT* rect, const ClockSettings& setti
     
     // Center and draw text
     RectF layoutRect = CenterText(graphics, font, timeStr, &mainRect);
+    
+    if (!showWorld) {
+        graphics.DrawString(timeStr, -1, &font, layoutRect,
+                           StringFormat::GenericDefault(), &brush);
+        return;
+    }
+    
+    // Size the world row to its band, then shrink it to fit the width.
+    float band = (float)(worldRect.bottom - worldRect.top);
+    float desired = WorldRowDesiredPx(band);
+    
+    Font probe(settings.fontName, desired, FontStyleRegular, UnitPixel);
+    RectF unbounded(0, 0, 100000.0f, 100000.0f);
+    RectF measured;
+    graphics.MeasureString(worldRow, -1, &probe, unbounded,
+                          StringFormat::GenericDefault(), &measured);
+    
+    float available = (rect->right - rect->left) * WORLD_ROW_WIDTH_SHARE;
+    float worldSize = WorldRowFontPx(band, measured.Width, available);
+    
+    // Single line, never wrapped: if it still can't fit at the floor
+    // size it is trimmed with an ellipsis rather than spilling over.
+    StringFormat noWrap(StringFormat::GenericDefault());
+    noWrap.SetFormatFlags(noWrap.GetFormatFlags() | StringFormatFlagsNoWrap);
+    noWrap.SetTrimming(StringTrimmingEllipsisCharacter);
+    
+    Font worldFont(settings.fontName, worldSize, FontStyleRegular, UnitPixel);
+    RectF worldLayout = CenterText(graphics, worldFont, worldRow, &worldRect);
+    
+    // The split sets each row's font size; vertically the two rows are
+    // stacked with the world row right under the main time's baseline and
+    // centered together, so there is no empty band between them.
+    FontFamily family;
+    font.GetFamily(&family);
+    float mainBaseline = font.GetSize() * family.GetCellAscent(FontStyleRegular) /
+                         family.GetEmHeight(FontStyleRegular);
+    StackRows((REAL)rect->top, (REAL)(rect->bottom - rect->top), mainBaseline,
+              worldLayout.Height, &layoutRect.Y, &worldLayout.Y);
+    
     graphics.DrawString(timeStr, -1, &font, layoutRect,
                        StringFormat::GenericDefault(), &brush);
-    
-    if (showWorld) {
-        // Size the world row to its band, then shrink it to fit the width.
-        float band = (float)(worldRect.bottom - worldRect.top);
-        float desired = WorldRowDesiredPx(band);
-        
-        Font probe(settings.fontName, desired, FontStyleRegular, UnitPixel);
-        RectF unbounded(0, 0, 100000.0f, 100000.0f);
-        RectF measured;
-        graphics.MeasureString(worldRow, -1, &probe, unbounded,
-                              StringFormat::GenericDefault(), &measured);
-        
-        float available = (rect->right - rect->left) * WORLD_ROW_WIDTH_SHARE;
-        float worldSize = WorldRowFontPx(band, measured.Width, available);
-        
-        // Single line, never wrapped: if it still can't fit at the floor
-        // size it is trimmed with an ellipsis rather than spilling over.
-        StringFormat noWrap(StringFormat::GenericDefault());
-        noWrap.SetFormatFlags(noWrap.GetFormatFlags() | StringFormatFlagsNoWrap);
-        noWrap.SetTrimming(StringTrimmingEllipsisCharacter);
-        
-        Font worldFont(settings.fontName, worldSize, FontStyleRegular, UnitPixel);
-        RectF worldLayout = CenterText(graphics, worldFont, worldRow, &worldRect);
-        graphics.DrawString(worldRow, -1, &worldFont, worldLayout, &noWrap, &brush);
-    }
+    graphics.DrawString(worldRow, -1, &worldFont, worldLayout, &noWrap, &brush);
 }
 
 // Made with Bob

@@ -114,7 +114,22 @@ static void TestSplitMainHeight() {
     CHECK(WORLD_SPLIT_DEFAULT == 70);
 }
 
+// The world row sits directly under the main time's baseline (no empty
+// band between them), and the two rows are centered together.
+static void TestStackRows() {
+    float mainY, worldY;
+    // 80px window; main text baseline 24px below its box top; world box 17px.
+    StackRows(0.0f, 80.0f, 24.0f, 17.0f, &mainY, &worldY);
+    CHECK(worldY - mainY == 24.0f);              // no gap below the baseline
+    CHECK(mainY == (80.0f - (24.0f + 17.0f)) / 2.0f);  // block centered
+    // A block taller than the window starts at the top, never above it.
+    StackRows(10.0f, 30.0f, 24.0f, 17.0f, &mainY, &worldY);
+    CHECK(mainY == 10.0f);
+    CHECK(worldY == 34.0f);
+}
+
 int main() {
+    TestStackRows();
     TestSplitMainHeight();
     TestWorldRowFontFitsDefaultWindow();
     TestDeriveDefaultLabel();

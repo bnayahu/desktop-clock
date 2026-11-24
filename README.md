@@ -59,7 +59,7 @@ Everything is in one dialog with a live preview:
 - **Text opacity** — 0 to 255; controls the digits independently of the background
 - **Font** and **Font size**
 - **Start with Windows**
-- **World Clock** — pick up to two timezones and give each a label (up to 16 characters); leave the label blank to use the first city in the timezone name. **Main time size** sets how much of the window height the main time gets when a zone is set (50–90%, default 70%); the world row uses the rest
+- **World Clock** — pick up to two timezones and give each a label (up to 16 characters); leave the label blank to use the first city in the timezone name. **Main time size** sets how the window height is shared between the main time and the world row when a zone is set (50–90% for the main time, default 70%); the two rows sit together, centered in the window
 
 **Apply** commits changes without closing the dialog.
 

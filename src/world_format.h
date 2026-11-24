@@ -52,4 +52,12 @@ float WorldRowDesiredPx(float bandHeight);
 // never needs to wrap.
 float WorldRowFontPx(float bandHeight, float measuredAtDesired, float availableWidth);
 
+// Vertical placement of the main time and world row as one block centered
+// in [rectTop, rectTop + rectHeight). The world row starts at the main
+// text's baseline (mainBaseline px below the main box top), so the unused
+// descender space under the digits doesn't become a gap. Never starts
+// above rectTop.
+void StackRows(float rectTop, float rectHeight, float mainBaseline,
+               float worldHeight, float* mainY, float* worldY);
+
 #endif // WORLD_FORMAT_H
