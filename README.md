@@ -163,6 +163,7 @@ Issues and pull requests are welcome. Please test changes on Windows 10 or 11, a
 - **Main time size** slider (50–90%) controls how the window height is split between the main time and the world row
 - The 12/24-hour, seconds, always-on-top and startup options are combined into one **General** section to keep the dialog compact
 - New registry values `WorldTz1`, `WorldTz2`, `WorldLabel1`, `WorldLabel2`, `WorldSplit`; existing settings are read unchanged
+- Fixed garbled bullet characters in the About dialog
 
 ### v1.2.0
 
