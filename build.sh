@@ -28,6 +28,7 @@ $GCC -std=c++11 -Wall -Wextra -Wno-unused-parameter -DUNICODE -D_UNICODE \
      src/renderer.cpp \
      src/tray_icon.cpp \
      src/world_format.cpp \
+     src/world_clock.cpp \
      resources/clock.res \
      -o DesktopClock.exe \
      -lgdiplus -luser32 -lshell32 -lcomctl32 \

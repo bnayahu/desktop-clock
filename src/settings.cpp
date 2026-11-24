@@ -2,6 +2,35 @@
 #include "../resources/app_strings.h"
 #include <stdio.h>
 
+// Names of the world clock registry values, indexed by zone.
+static const wchar_t* const kWorldTzValues[WORLD_ZONE_COUNT] = { L"WorldTz1", L"WorldTz2" };
+static const wchar_t* const kWorldLabelValues[WORLD_ZONE_COUNT] = { L"WorldLabel1", L"WorldLabel2" };
+
+// Reads a REG_SZ value into out (outLen characters, always null-terminated).
+// Leaves out untouched if the value is missing or not a string.
+static void ReadRegString(HKEY hKey, const wchar_t* name, wchar_t* out, size_t outLen) {
+    wchar_t buffer[256] = {};
+    DWORD size = sizeof(buffer) - sizeof(wchar_t);  // keep room for a terminator
+    DWORD type;
+    if (RegQueryValueEx(hKey, name, NULL, &type, (LPBYTE)buffer, &size) == ERROR_SUCCESS &&
+        type == REG_SZ) {
+        wcsncpy(out, buffer, outLen - 1);
+        out[outLen - 1] = L'\0';
+    }
+}
+
+static void WriteRegString(HKEY hKey, const wchar_t* name, const wchar_t* value) {
+    DWORD size = (DWORD)((wcslen(value) + 1) * sizeof(wchar_t));
+    RegSetValueEx(hKey, name, 0, REG_SZ, (const BYTE*)value, size);
+}
+
+bool HasWorldZones(const ClockSettings& s) {
+    for (int i = 0; i < WORLD_ZONE_COUNT; i++) {
+        if (s.worldTz[i][0] != L'\0') return true;
+    }
+    return false;
+}
+
 SettingsManager::SettingsManager() {
     InitializeDefaults();
 }
@@ -24,6 +53,10 @@ void SettingsManager::InitializeDefaults() {
     m_settings.windowHeight = 80;
     m_settings.startWithWindows = false;
     m_settings.clockVisible = true;
+    for (int i = 0; i < WORLD_ZONE_COUNT; i++) {
+        m_settings.worldTz[i][0] = L'\0';
+        m_settings.worldLabel[i][0] = L'\0';
+    }
 }
 
 void SettingsManager::LoadSettings() {
@@ -113,6 +146,11 @@ void SettingsManager::LoadSettings() {
             }
         }
         
+        for (int i = 0; i < WORLD_ZONE_COUNT; i++) {
+            ReadRegString(hKey, kWorldTzValues[i], m_settings.worldTz[i], WORLD_TZ_KEY_LEN);
+            ReadRegString(hKey, kWorldLabelValues[i], m_settings.worldLabel[i], WORLD_LABEL_MAX + 1);
+        }
+        
         RegCloseKey(hKey);
     }
     
@@ -183,6 +221,11 @@ void SettingsManager::SaveSettings() {
         
         DWORD fontNameSize = (wcslen(m_settings.fontName) + 1) * sizeof(wchar_t);
         RegSetValueEx(hKey, L"FontName", 0, REG_SZ, (LPBYTE)m_settings.fontName, fontNameSize);
+        
+        for (int i = 0; i < WORLD_ZONE_COUNT; i++) {
+            WriteRegString(hKey, kWorldTzValues[i], m_settings.worldTz[i]);
+            WriteRegString(hKey, kWorldLabelValues[i], m_settings.worldLabel[i]);
+        }
         
         RegCloseKey(hKey);
     }

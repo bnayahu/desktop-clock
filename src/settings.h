@@ -2,6 +2,10 @@
 #define SETTINGS_H
 
 #include <windows.h>
+#include "world_format.h"
+
+const int WORLD_ZONE_COUNT = 2;
+const int WORLD_TZ_KEY_LEN = 128;   // matches DYNAMIC_TIME_ZONE_INFORMATION::TimeZoneKeyName
 
 enum TimeFormat {
     TIME_12H = 0,
@@ -29,7 +33,12 @@ struct ClockSettings {
     int windowHeight;
     bool startWithWindows;
     bool clockVisible;
+    wchar_t worldTz[WORLD_ZONE_COUNT][WORLD_TZ_KEY_LEN];        // Timezone key names; empty = off
+    wchar_t worldLabel[WORLD_ZONE_COUNT][WORLD_LABEL_MAX + 1];  // Custom labels; empty = default
 };
+
+// True if at least one world clock zone is configured.
+bool HasWorldZones(const ClockSettings& s);
 
 class SettingsManager {
 public:
