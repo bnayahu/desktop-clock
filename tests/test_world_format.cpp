@@ -88,7 +88,24 @@ static void TestFitFontToWidth() {
     CHECK(FitFontToWidth(20, 4000, 200, 8) == 8);
 }
 
+// Review finding: at the default 200x80 window (24px band, 190px usable),
+// a realistic two-zone row measuring 227px at 8px must shrink below 8px to
+// fit, not stop at a floor and wrap.
+static void TestWorldRowFontFitsDefaultWindow() {
+    float band = 24.0f;                    // 30% of an 80px window
+    float desired = band * 0.6f;           // 14.4px
+    float measured = 227.0f * desired / 8.0f;
+    float px = WorldRowFontPx(band, measured, 190.0f);
+    CHECK(px < 8.0f);
+    CHECK(measured * px / desired <= 190.5f);
+    // A row that already fits keeps the height-derived size.
+    CHECK(WorldRowFontPx(band, 100.0f, 190.0f) == desired);
+    // Tiny bands still get a readable height-derived size.
+    CHECK(WorldRowFontPx(5.0f, 10.0f, 190.0f) == 8.0f);
+}
+
 int main() {
+    TestWorldRowFontFitsDefaultWindow();
     TestDeriveDefaultLabel();
     TestResolveLabel();
     TestDayOffset();

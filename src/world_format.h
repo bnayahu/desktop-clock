@@ -32,4 +32,14 @@ void JoinWorldEntries(const wchar_t* a, const wchar_t* b, wchar_t* out, size_t o
 // proportionally, never below minPx.
 float FitFontToWidth(float desiredPx, float measuredWidth, float availableWidth, float minPx);
 
+// Font size for the world row, derived from its band height (a share of
+// the band, never below a readable minimum).
+float WorldRowDesiredPx(float bandHeight);
+
+// Final world row font size: WorldRowDesiredPx(bandHeight), shrunk so a row
+// measuring measuredAtDesired at that size fits availableWidth. The width
+// fit may go below the height minimum (down to a hard floor) so the row
+// never needs to wrap.
+float WorldRowFontPx(float bandHeight, float measuredAtDesired, float availableWidth);
+
 #endif // WORLD_FORMAT_H

@@ -5,9 +5,6 @@
 
 // Share of the client height given to the main time when the world row shows.
 static const float MAIN_ROW_SHARE = 0.70f;
-// World row font size relative to its row height, and the minimum size.
-static const float WORLD_FONT_SHARE = 0.60f;
-static const float WORLD_FONT_MIN_PX = 8.0f;
 // Fraction of the window width the world row may occupy.
 static const float WORLD_ROW_WIDTH_SHARE = 0.95f;
 
@@ -187,8 +184,8 @@ void ClockRenderer::Render(HDC hdc, const RECT* rect, const ClockSettings& setti
     
     if (showWorld) {
         // Size the world row to its band, then shrink it to fit the width.
-        float desired = (worldRect.bottom - worldRect.top) * WORLD_FONT_SHARE;
-        if (desired < WORLD_FONT_MIN_PX) desired = WORLD_FONT_MIN_PX;
+        float band = (float)(worldRect.bottom - worldRect.top);
+        float desired = WorldRowDesiredPx(band);
         
         Font probe(settings.fontName, desired, FontStyleRegular, UnitPixel);
         RectF unbounded(0, 0, 100000.0f, 100000.0f);
@@ -197,13 +194,17 @@ void ClockRenderer::Render(HDC hdc, const RECT* rect, const ClockSettings& setti
                               StringFormat::GenericDefault(), &measured);
         
         float available = (rect->right - rect->left) * WORLD_ROW_WIDTH_SHARE;
-        float worldSize = FitFontToWidth(desired, measured.Width, available,
-                                         WORLD_FONT_MIN_PX);
+        float worldSize = WorldRowFontPx(band, measured.Width, available);
+        
+        // Single line, never wrapped: if it still can't fit at the floor
+        // size it is trimmed with an ellipsis rather than spilling over.
+        StringFormat noWrap(StringFormat::GenericDefault());
+        noWrap.SetFormatFlags(noWrap.GetFormatFlags() | StringFormatFlagsNoWrap);
+        noWrap.SetTrimming(StringTrimmingEllipsisCharacter);
         
         Font worldFont(settings.fontName, worldSize, FontStyleRegular, UnitPixel);
         RectF worldLayout = CenterText(graphics, worldFont, worldRow, &worldRect);
-        graphics.DrawString(worldRow, -1, &worldFont, worldLayout,
-                           StringFormat::GenericDefault(), &brush);
+        graphics.DrawString(worldRow, -1, &worldFont, worldLayout, &noWrap, &brush);
     }
 }
 

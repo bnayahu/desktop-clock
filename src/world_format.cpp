@@ -78,3 +78,19 @@ float FitFontToWidth(float desiredPx, float measuredWidth, float availableWidth,
     }
     return size < minPx ? minPx : size;
 }
+
+// World row font size relative to its band height, the minimum
+// height-derived size, and the hard floor when shrinking to fit the width.
+static const float WORLD_FONT_SHARE = 0.60f;
+static const float WORLD_FONT_MIN_PX = 8.0f;
+static const float WORLD_FONT_FLOOR_PX = 4.0f;
+
+float WorldRowDesiredPx(float bandHeight) {
+    float desired = bandHeight * WORLD_FONT_SHARE;
+    return desired < WORLD_FONT_MIN_PX ? WORLD_FONT_MIN_PX : desired;
+}
+
+float WorldRowFontPx(float bandHeight, float measuredAtDesired, float availableWidth) {
+    return FitFontToWidth(WorldRowDesiredPx(bandHeight), measuredAtDesired,
+                          availableWidth, WORLD_FONT_FLOOR_PX);
+}
