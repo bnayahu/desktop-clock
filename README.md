@@ -13,6 +13,7 @@ Single executable, no installer, no runtime dependencies. Settings live in the r
 - **Floating window** — transparent, draggable from anywhere, optionally always on top
 - **Resizable** — drag any edge or corner; the font scales with the window
 - **Time format** — 12-hour (with AM/PM) or 24-hour, with optional seconds
+- **World clock** — up to two extra timezones with custom labels, shown on a smaller row below the main time; `+1`/`−1` marks a different date
 - **Appearance**
   - Custom text color via an RGB picker with live preview
   - Independent background and text opacity (0–255 each), so text stays readable over a near-invisible window
@@ -58,6 +59,7 @@ Everything is in one dialog with a live preview:
 - **Text opacity** — 0 to 255; controls the digits independently of the background
 - **Font** and **Font size**
 - **Start with Windows**
+- **World Clock** — pick up to two timezones and give each a label (up to 16 characters); leave the label blank to use the first city in the timezone name. When a zone is set, the main time uses the top 70% of the window and the world row the rest
 
 **Apply** commits changes without closing the dialog.
 
@@ -75,6 +77,8 @@ Settings are stored under `HKEY_CURRENT_USER\Software\DesktopClock`:
 | `FontName` | Font family name |
 | `FontSize` | 0 = Small, 1 = Medium, 2 = Large |
 | `WindowX`, `WindowY`, `WindowWidth`, `WindowHeight` | Position and size |
+| `WorldTz1`, `WorldTz2` | Windows timezone key name (e.g. `Tokyo Standard Time`); empty = off |
+| `WorldLabel1`, `WorldLabel2` | Custom world clock label; empty = default |
 
 The startup entry, when enabled, is written to `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`.
 
@@ -92,6 +96,12 @@ sudo apt install mingw-w64
 
 `build.sh` compiles the resources with `windres`, links with `x86_64-w64-mingw32-g++`, and writes `DesktopClock.exe` to the project root. Copy it to a Windows machine to run it.
 
+The Windows-free formatting logic has unit tests that run natively with `g++`:
+
+```bash
+./tests/run_tests.sh
+```
+
 The C++ runtime is linked statically (`-static-libgcc -static-libstdc++`), so the executable has no DLL dependencies beyond the system libraries.
 
 ## Project Structure
@@ -103,6 +113,8 @@ desktop-clock/
 │   ├── clock_window.h/cpp    # Clock window and input handling
 │   ├── settings.h/cpp        # Registry-backed settings
 │   ├── renderer.h/cpp        # GDI+ text rendering
+│   ├── world_clock.h/cpp     # Timezone lookup for the world clock
+│   ├── world_format.h/cpp    # World clock text formatting (no Win32)
 │   └── tray_icon.h/cpp       # System tray integration
 ├── resources/
 │   ├── clock.rc              # Dialogs, menus, resource definitions
@@ -110,6 +122,7 @@ desktop-clock/
 │   ├── app_strings.h         # Application strings and version
 │   ├── clock_icon.ico        # Application icon
 │   └── tray_icon.ico         # Tray icon
+├── tests/                    # Host unit tests (./tests/run_tests.sh)
 ├── build.sh                  # Cross-compilation script
 └── LICENSE
 ```
@@ -142,6 +155,11 @@ A single-threaded, pure Win32 application. The clock is a `WS_EX_LAYERED` window
 Issues and pull requests are welcome. Please test changes on Windows 10 or 11, and follow the existing code style.
 
 ## Changelog
+
+### v1.3.0
+
+- **World clock**: optionally show up to two extra timezones, each with a custom label, on a smaller row beneath the main time. Times follow the 12/24-hour setting (without seconds), handle daylight saving, and show `+1`/`−1` when the date differs from yours
+- New registry values `WorldTz1`, `WorldTz2`, `WorldLabel1`, `WorldLabel2`; existing settings are read unchanged
 
 ### v1.2.0
 

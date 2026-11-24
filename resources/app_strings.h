@@ -7,7 +7,7 @@
 // releasing; the About dialog and the VS_VERSION_INFO resource both derive
 // their text from them, so they cannot drift apart.
 #define APP_VERSION_MAJOR       1
-#define APP_VERSION_MINOR       2
+#define APP_VERSION_MINOR       3
 
 // Turns the numbers above into resource strings.
 #define APP_STRINGIFY_(x)       #x

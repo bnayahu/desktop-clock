@@ -25,6 +25,10 @@
 #define IDC_COMBO_FONTNAME      2013
 #define IDC_SLIDER_TEXT_ALPHA   2014
 #define IDC_STATIC_TEXT_ALPHA_VALUE 2015
+#define IDC_COMBO_TZ1           2016
+#define IDC_EDIT_LABEL1         2017
+#define IDC_COMBO_TZ2           2018
+#define IDC_EDIT_LABEL2         2019
 
 // Control IDs for About Dialog
 #define IDC_STATIC_ABOUT_VERSION 2101

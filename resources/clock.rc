@@ -37,7 +37,7 @@ BEGIN
 END
 
 // Settings Dialog
-IDD_SETTINGS DIALOGEX 0, 0, 300, 390
+IDD_SETTINGS DIALOGEX 0, 0, 300, 460
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Desktop Clock Settings"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -81,13 +81,25 @@ BEGIN
     AUTOCHECKBOX    "Start Desktop Clock when Windows starts",
                     IDC_CHECK_STARTUP, 15, 302, 200, 10
     
-    GROUPBOX        "Preview", -1, 7, 322, 286, 40
-    LTEXT           "14:35", IDC_STATIC_PREVIEW, 15, 337, 270, 20,
+    GROUPBOX        "World Clock", -1, 7, 322, 286, 55
+    LTEXT           "Zone 1:", -1, 15, 339, 30, 10
+    COMBOBOX        IDC_COMBO_TZ1, 48, 337, 150, 150,
+                    CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Label:", -1, 205, 339, 25, 10
+    EDITTEXT        IDC_EDIT_LABEL1, 232, 337, 55, 12, ES_AUTOHSCROLL
+    LTEXT           "Zone 2:", -1, 15, 358, 30, 10
+    COMBOBOX        IDC_COMBO_TZ2, 48, 356, 150, 150,
+                    CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Label:", -1, 205, 358, 25, 10
+    EDITTEXT        IDC_EDIT_LABEL2, 232, 356, 55, 12, ES_AUTOHSCROLL
+    
+    GROUPBOX        "Preview", -1, 7, 382, 286, 50
+    LTEXT           "14:35", IDC_STATIC_PREVIEW, 15, 397, 270, 30,
                     SS_CENTER
     
-    DEFPUSHBUTTON   "OK", IDOK, 70, 370, 50, 14
-    PUSHBUTTON      "Cancel", IDCANCEL, 130, 370, 50, 14
-    PUSHBUTTON      "Apply", IDAPPLY, 190, 370, 50, 14
+    DEFPUSHBUTTON   "OK", IDOK, 70, 440, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 130, 440, 50, 14
+    PUSHBUTTON      "Apply", IDAPPLY, 190, 440, 50, 14
 END
 
 // About Dialog

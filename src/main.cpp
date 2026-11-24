@@ -9,6 +9,8 @@
 #include "clock_window.h"
 #include "settings.h"
 #include "tray_icon.h"
+#include "renderer.h"
+#include "world_clock.h"
 #include "../resources/resource.h"
 #include "../resources/app_strings.h"
 
@@ -24,6 +26,16 @@ void UpdatePreview(HWND hwndDlg, const ClockSettings* settings);
 void UpdateAlphaLabel(HWND hwndDlg, int alpha);
 void UpdateTextAlphaLabel(HWND hwndDlg, int alpha);
 void UpdateColorPreviewBox(HWND hwndDlg, COLORREF color);
+void InitWorldZoneControls(HWND hwndDlg, ClockSettings* settings);
+
+// World clock dialog controls, indexed by zone.
+static const int kTzCombos[WORLD_ZONE_COUNT] = { IDC_COMBO_TZ1, IDC_COMBO_TZ2 };
+static const int kLabelEdits[WORLD_ZONE_COUNT] = { IDC_EDIT_LABEL1, IDC_EDIT_LABEL2 };
+
+// System timezone list, loaded once on first use of the settings dialog.
+static const int MAX_TIME_ZONES = 256;
+static TimeZoneEntry g_timeZones[MAX_TIME_ZONES];
+static int g_timeZoneCount = -1;
 
 // Main window procedure for hidden window
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -220,6 +232,9 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARA
             SendDlgItemMessage(hwndDlg, IDC_COMBO_FONTSIZE, CB_SETCURSEL,
                              tempSettings.fontSize, 0);
             
+            // Initialize world clock zones and labels
+            InitWorldZoneControls(hwndDlg, &tempSettings);
+            
             // Update preview and color box
             UpdateColorPreviewBox(hwndDlg, tempSettings.textColor);
             UpdatePreview(hwndDlg, &tempSettings);
@@ -279,6 +294,34 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARA
                             tempSettings.fontSize = (FontSize)sel;
                             UpdatePreview(hwndDlg, &tempSettings);
                         }
+                    }
+                    break;
+                
+                case IDC_COMBO_TZ1:
+                case IDC_COMBO_TZ2:
+                    if (HIWORD(wParam) == CBN_SELCHANGE) {
+                        int zone = (LOWORD(wParam) == IDC_COMBO_TZ1) ? 0 : 1;
+                        int sel = SendDlgItemMessage(hwndDlg, kTzCombos[zone], CB_GETCURSEL, 0, 0);
+                        LRESULT index = (sel == CB_ERR) ? -1 :
+                            SendDlgItemMessage(hwndDlg, kTzCombos[zone], CB_GETITEMDATA, sel, 0);
+                        if (index >= 0 && index < g_timeZoneCount) {
+                            wcsncpy(tempSettings.worldTz[zone], g_timeZones[index].keyName,
+                                    WORLD_TZ_KEY_LEN - 1);
+                            tempSettings.worldTz[zone][WORLD_TZ_KEY_LEN - 1] = L'\0';
+                        } else {
+                            tempSettings.worldTz[zone][0] = L'\0';
+                        }
+                        UpdatePreview(hwndDlg, &tempSettings);
+                    }
+                    break;
+                
+                case IDC_EDIT_LABEL1:
+                case IDC_EDIT_LABEL2:
+                    if (HIWORD(wParam) == EN_CHANGE) {
+                        int zone = (LOWORD(wParam) == IDC_EDIT_LABEL1) ? 0 : 1;
+                        GetDlgItemText(hwndDlg, kLabelEdits[zone],
+                                       tempSettings.worldLabel[zone], WORLD_LABEL_MAX + 1);
+                        UpdatePreview(hwndDlg, &tempSettings);
                     }
                     break;
                 
@@ -386,7 +429,46 @@ void UpdatePreview(HWND hwndDlg, const ClockSettings* settings) {
         }
     }
     
-    SetDlgItemText(hwndDlg, IDC_STATIC_PREVIEW, timeStr);
+    // Second line: the world clock row, if any zone is configured
+    wchar_t worldRow[160];
+    if (BuildWorldRow(*settings, st, worldRow, 160)) {
+        wchar_t previewStr[200];
+        swprintf(previewStr, 200, L"%ls\r\n%ls", timeStr, worldRow);
+        SetDlgItemText(hwndDlg, IDC_STATIC_PREVIEW, previewStr);
+    } else {
+        SetDlgItemText(hwndDlg, IDC_STATIC_PREVIEW, timeStr);
+    }
+}
+
+// Fills the world clock zone combos and label edits from settings.
+// A stored zone that is no longer a known timezone shows as "(None)" and is
+// cleared, so saving the dialog doesn't write the stale key back.
+void InitWorldZoneControls(HWND hwndDlg, ClockSettings* settings) {
+    if (g_timeZoneCount < 0) {
+        g_timeZoneCount = EnumerateTimeZones(g_timeZones, MAX_TIME_ZONES);
+    }
+    
+    for (int zone = 0; zone < WORLD_ZONE_COUNT; zone++) {
+        HWND combo = GetDlgItem(hwndDlg, kTzCombos[zone]);
+        int item = SendMessage(combo, CB_ADDSTRING, 0, (LPARAM)L"(None)");
+        SendMessage(combo, CB_SETITEMDATA, item, (LPARAM)-1);
+        int selected = item;
+        
+        for (int i = 0; i < g_timeZoneCount; i++) {
+            item = SendMessage(combo, CB_ADDSTRING, 0, (LPARAM)g_timeZones[i].displayName);
+            SendMessage(combo, CB_SETITEMDATA, item, (LPARAM)i);
+            if (wcscmp(settings->worldTz[zone], g_timeZones[i].keyName) == 0) {
+                selected = item;
+            }
+        }
+        SendMessage(combo, CB_SETCURSEL, selected, 0);
+        if (selected == 0) {
+            settings->worldTz[zone][0] = L'\0';
+        }
+        
+        SendDlgItemMessage(hwndDlg, kLabelEdits[zone], EM_LIMITTEXT, WORLD_LABEL_MAX, 0);
+        SetDlgItemText(hwndDlg, kLabelEdits[zone], settings->worldLabel[zone]);
+    }
 }
 
 // Helper function to update background alpha label
