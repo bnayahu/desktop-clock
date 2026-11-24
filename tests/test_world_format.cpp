@@ -57,17 +57,17 @@ static void TestDayOffset() {
 static void TestFormatWorldEntry() {
     wchar_t out[64];
     FormatWorldEntry(out, 64, L"Tokyo", 9, 35, false, 1);
-    CHECK_WSTR(out, L"Tokyo 09:35 +1");
+    CHECK_WSTR(out, L"09:35 Tokyo +1");
     FormatWorldEntry(out, 64, L"NYC", 8, 5, false, 0);
-    CHECK_WSTR(out, L"NYC 08:05");
+    CHECK_WSTR(out, L"08:05 NYC");
     FormatWorldEntry(out, 64, L"LA", 23, 0, false, -1);
-    CHECK_WSTR(out, L"LA 23:00 −1");
+    CHECK_WSTR(out, L"23:00 LA \u22121");
     FormatWorldEntry(out, 64, L"Tokyo", 0, 15, true, 0);
-    CHECK_WSTR(out, L"Tokyo 12:15 AM");
+    CHECK_WSTR(out, L"12:15 AM Tokyo");
     FormatWorldEntry(out, 64, L"Tokyo", 12, 0, true, 0);
-    CHECK_WSTR(out, L"Tokyo 12:00 PM");
+    CHECK_WSTR(out, L"12:00 PM Tokyo");
     FormatWorldEntry(out, 64, L"Tokyo", 21, 35, true, 1);
-    CHECK_WSTR(out, L"Tokyo 9:35 PM +1");
+    CHECK_WSTR(out, L"9:35 PM Tokyo +1");
 }
 
 static void TestJoinWorldEntries() {
@@ -104,7 +104,18 @@ static void TestWorldRowFontFitsDefaultWindow() {
     CHECK(WorldRowFontPx(5.0f, 10.0f, 190.0f) == 8.0f);
 }
 
+static void TestSplitMainHeight() {
+    CHECK(SplitMainHeight(80, 70) == 56);
+    CHECK(SplitMainHeight(100, 50) == 50);
+    CHECK(SplitMainHeight(100, 90) == 90);
+    // Out-of-range percentages are clamped to the supported range.
+    CHECK(SplitMainHeight(100, 10) == WORLD_SPLIT_MIN);
+    CHECK(SplitMainHeight(100, 99) == WORLD_SPLIT_MAX);
+    CHECK(WORLD_SPLIT_DEFAULT == 70);
+}
+
 int main() {
+    TestSplitMainHeight();
     TestWorldRowFontFitsDefaultWindow();
     TestDeriveDefaultLabel();
     TestResolveLabel();

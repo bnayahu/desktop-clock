@@ -3,8 +3,6 @@
 #include "world_format.h"
 #include <stdio.h>
 
-// Share of the client height given to the main time when the world row shows.
-static const float MAIN_ROW_SHARE = 0.70f;
 // Fraction of the window width the world row may occupy.
 static const float WORLD_ROW_WIDTH_SHARE = 0.95f;
 
@@ -152,7 +150,7 @@ void ClockRenderer::Render(HDC hdc, const RECT* rect, const ClockSettings& setti
     FormatTimeString(timeStr, 32, &st, settings);
     
     // With world clocks configured, the main time takes the top share of the
-    // window and the world row the rest. Otherwise the layout is unchanged.
+    // window (settings.worldSplit percent) and the world row the rest. Otherwise the layout is unchanged.
     wchar_t worldRow[160];
     bool showWorld = BuildWorldRow(settings, st, worldRow, 160);
     
@@ -160,7 +158,7 @@ void ClockRenderer::Render(HDC hdc, const RECT* rect, const ClockSettings& setti
     RECT worldRect = *rect;
     if (showWorld) {
         int clientHeight = rect->bottom - rect->top;
-        mainRect.bottom = rect->top + (int)(clientHeight * MAIN_ROW_SHARE);
+        mainRect.bottom = rect->top + SplitMainHeight(clientHeight, settings.worldSplit);
         worldRect.top = mainRect.bottom;
     }
     

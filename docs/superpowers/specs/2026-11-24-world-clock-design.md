@@ -37,11 +37,16 @@ glance, without leaving the desktop clock.
 ## Decided behavior
 
 - **Layout:** world row centered beneath main time; both zones side by side on one row,
-  separated by spacing, e.g. `Tokyo 21:35 +1    NYC 08:35`. Only configured zones appear.
+  separated by spacing, e.g. `21:35 Tokyo +1    08:35 NYC`. Only configured zones appear.
 - **Format:** follows the main clock's 12/24h setting; never shows seconds.
 - **Style:** same font family, text color, and text opacity as the main time.
 - **Label:** user-editable; if blank, a short default derived from the zone's display name.
 - **Enabling:** a zone appears only once a timezone is selected (`(None)` = off).
+
+## Revisions (2026-11-24, after first Windows trial)
+
+- The 70/30 split is user-adjustable: a "Main time size" slider, 50–90%, default 70%.
+- Entries read time first, then label: `10:30 CT`, `9:35 PM Tokyo +1`.
 
 ## Settings / persistence
 
@@ -51,6 +56,7 @@ New registry values under `HKCU\Software\DesktopClock`:
 | --- | --- |
 | `WorldTz1`, `WorldTz2` | Windows timezone key name (e.g. `Tokyo Standard Time`); empty = off |
 | `WorldLabel1`, `WorldLabel2` | Custom label; empty = use default |
+| `WorldSplit` | Main time share of height in percent, 50–90 (default 70) |
 
 Missing values = off, so existing installs are unchanged.
 
@@ -64,7 +70,7 @@ OK/Apply/Cancel semantics as for existing settings.
 
 - APIs: `EnumDynamicTimeZoneInformation` to list zones and
   `SystemTimeToTzSpecificLocalTimeEx` to convert (both available on Win 10/11).
-- Exact split ratio and world-row font size (start at ~70/30), spacing between zones.
+- World-row font size and spacing between zones.
 - Default-label derivation rule (e.g. first city after the `(UTC±hh:mm)` prefix) and
   max label length (suggest 16 chars).
 - Whether the dialog preview also shows the world row.

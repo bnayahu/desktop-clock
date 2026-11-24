@@ -57,6 +57,7 @@ void SettingsManager::InitializeDefaults() {
         m_settings.worldTz[i][0] = L'\0';
         m_settings.worldLabel[i][0] = L'\0';
     }
+    m_settings.worldSplit = WORLD_SPLIT_DEFAULT;
 }
 
 void SettingsManager::LoadSettings() {
@@ -151,6 +152,13 @@ void SettingsManager::LoadSettings() {
             ReadRegString(hKey, kWorldLabelValues[i], m_settings.worldLabel[i], WORLD_LABEL_MAX + 1);
         }
         
+        size = sizeof(DWORD);
+        if (RegQueryValueEx(hKey, L"WorldSplit", NULL, &type, (LPBYTE)&value, &size) == ERROR_SUCCESS) {
+            if (type == REG_DWORD && value >= WORLD_SPLIT_MIN && value <= WORLD_SPLIT_MAX) {
+                m_settings.worldSplit = (int)value;
+            }
+        }
+        
         RegCloseKey(hKey);
     }
     
@@ -226,6 +234,9 @@ void SettingsManager::SaveSettings() {
             WriteRegString(hKey, kWorldTzValues[i], m_settings.worldTz[i]);
             WriteRegString(hKey, kWorldLabelValues[i], m_settings.worldLabel[i]);
         }
+        
+        value = (DWORD)m_settings.worldSplit;
+        RegSetValueEx(hKey, L"WorldSplit", 0, REG_DWORD, (LPBYTE)&value, sizeof(DWORD));
         
         RegCloseKey(hKey);
     }

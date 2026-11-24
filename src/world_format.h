@@ -8,6 +8,16 @@
 
 const int WORLD_LABEL_MAX = 16;
 
+// Share of the window height (percent) given to the main time when the
+// world row is shown. User-adjustable within [MIN, MAX].
+const int WORLD_SPLIT_MIN = 50;
+const int WORLD_SPLIT_MAX = 90;
+const int WORLD_SPLIT_DEFAULT = 70;
+
+// Height in pixels of the main-time band: mainPercent of clientHeight,
+// with mainPercent clamped to [WORLD_SPLIT_MIN, WORLD_SPLIT_MAX].
+int SplitMainHeight(int clientHeight, int mainPercent);
+
 // Short label from a Windows timezone display name: the text after the
 // "(UTC+hh:mm)" prefix up to the first comma, trimmed and truncated to
 // WORLD_LABEL_MAX characters.
@@ -20,7 +30,7 @@ void ResolveLabel(const wchar_t* customLabel, const wchar_t* displayName,
 // -1, 0 or +1: whether the zone's date is before, equal to or after local.
 int DayOffset(int localY, int localM, int localD, int zoneY, int zoneM, int zoneD);
 
-// "Label HH:MM" (or "Label H:MM AM/PM"), plus " +1" / " −1" when the
+// "HH:MM Label" (or "H:MM AM/PM Label"), plus " +1" / " −1" when the
 // zone's date differs from local.
 void FormatWorldEntry(wchar_t* out, size_t outLen, const wchar_t* label,
                       int hour, int minute, bool use12h, int dayOffset);

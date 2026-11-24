@@ -27,6 +27,7 @@ void UpdateAlphaLabel(HWND hwndDlg, int alpha);
 void UpdateTextAlphaLabel(HWND hwndDlg, int alpha);
 void UpdateColorPreviewBox(HWND hwndDlg, COLORREF color);
 void InitWorldZoneControls(HWND hwndDlg, ClockSettings* settings);
+void UpdateSplitLabel(HWND hwndDlg, int percent);
 
 // World clock dialog controls, indexed by zone.
 static const int kTzCombos[WORLD_ZONE_COUNT] = { IDC_COMBO_TZ1, IDC_COMBO_TZ2 };
@@ -370,6 +371,13 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARA
                 UpdateTextAlphaLabel(hwndDlg, pos);
                 UpdatePreview(hwndDlg, &tempSettings);
             }
+            // Handle main-time / world-row split slider
+            else if ((HWND)lParam == GetDlgItem(hwndDlg, IDC_SLIDER_SPLIT)) {
+                int pos = SendDlgItemMessage(hwndDlg, IDC_SLIDER_SPLIT,
+                                            TBM_GETPOS, 0, 0);
+                tempSettings.worldSplit = pos;
+                UpdateSplitLabel(hwndDlg, pos);
+            }
             break;
     }
     
@@ -469,6 +477,19 @@ void InitWorldZoneControls(HWND hwndDlg, ClockSettings* settings) {
         SendDlgItemMessage(hwndDlg, kLabelEdits[zone], EM_LIMITTEXT, WORLD_LABEL_MAX, 0);
         SetDlgItemText(hwndDlg, kLabelEdits[zone], settings->worldLabel[zone]);
     }
+    
+    SendDlgItemMessage(hwndDlg, IDC_SLIDER_SPLIT, TBM_SETRANGE,
+                       TRUE, MAKELONG(WORLD_SPLIT_MIN, WORLD_SPLIT_MAX));
+    SendDlgItemMessage(hwndDlg, IDC_SLIDER_SPLIT, TBM_SETTICFREQ, 5, 0);
+    SendDlgItemMessage(hwndDlg, IDC_SLIDER_SPLIT, TBM_SETPOS, TRUE, settings->worldSplit);
+    UpdateSplitLabel(hwndDlg, settings->worldSplit);
+}
+
+// Helper function to update the main-time size (split) label
+void UpdateSplitLabel(HWND hwndDlg, int percent) {
+    wchar_t text[16];
+    wsprintf(text, L"%d%%", percent);
+    SetDlgItemText(hwndDlg, IDC_STATIC_SPLIT_VALUE, text);
 }
 
 // Helper function to update background alpha label

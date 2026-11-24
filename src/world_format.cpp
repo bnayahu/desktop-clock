@@ -56,10 +56,10 @@ void FormatWorldEntry(wchar_t* out, size_t outLen, const wchar_t* label,
     if (use12h) {
         int h = hour % 12;
         if (h == 0) h = 12;
-        swprintf(out, outLen, L"%ls %d:%02d %ls%ls",
-                 label, h, minute, hour >= 12 ? L"PM" : L"AM", marker);
+        swprintf(out, outLen, L"%d:%02d %ls %ls%ls",
+                 h, minute, hour >= 12 ? L"PM" : L"AM", label, marker);
     } else {
-        swprintf(out, outLen, L"%ls %02d:%02d%ls", label, hour, minute, marker);
+        swprintf(out, outLen, L"%02d:%02d %ls%ls", hour, minute, label, marker);
     }
 }
 
@@ -93,4 +93,10 @@ float WorldRowDesiredPx(float bandHeight) {
 float WorldRowFontPx(float bandHeight, float measuredAtDesired, float availableWidth) {
     return FitFontToWidth(WorldRowDesiredPx(bandHeight), measuredAtDesired,
                           availableWidth, WORLD_FONT_FLOOR_PX);
+}
+
+int SplitMainHeight(int clientHeight, int mainPercent) {
+    if (mainPercent < WORLD_SPLIT_MIN) mainPercent = WORLD_SPLIT_MIN;
+    if (mainPercent > WORLD_SPLIT_MAX) mainPercent = WORLD_SPLIT_MAX;
+    return clientHeight * mainPercent / 100;
 }

@@ -37,65 +37,66 @@ BEGIN
 END
 
 // Settings Dialog
-IDD_SETTINGS DIALOGEX 0, 0, 300, 395
+IDD_SETTINGS DIALOGEX 0, 0, 300, 380
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Desktop Clock Settings"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    GROUPBOX        "Time Format", -1, 7, 7, 286, 30
+    GROUPBOX        "General", -1, 7, 7, 286, 45
     AUTORADIOBUTTON "12-hour", IDC_RADIO_12H, 15, 20, 60, 10, WS_GROUP
     AUTORADIOBUTTON "24-hour", IDC_RADIO_24H, 85, 20, 60, 10
+    AUTOCHECKBOX    "Show seconds", IDC_CHECK_SECONDS, 15, 35, 65, 10, WS_GROUP
+    AUTOCHECKBOX    "Always on top", IDC_CHECK_TOPMOST, 85, 35, 65, 10
+    AUTOCHECKBOX    "Start with Windows", IDC_CHECK_STARTUP, 160, 35, 90, 10
     
-    GROUPBOX        "Options", -1, 7, 42, 286, 45
-    AUTOCHECKBOX    "Show seconds", IDC_CHECK_SECONDS, 15, 55, 100, 10, WS_GROUP
-    AUTOCHECKBOX    "Always on top", IDC_CHECK_TOPMOST, 150, 55, 100, 10
-    AUTOCHECKBOX    "Start Desktop Clock when Windows starts",
-                    IDC_CHECK_STARTUP, 15, 70, 200, 10
+    GROUPBOX        "Appearance", -1, 7, 57, 286, 160
+    LTEXT           "Text Color:", -1, 15, 72, 50, 10
+    PUSHBUTTON      "Choose Color...", IDC_BUTTON_COLOR, 70, 70, 80, 14
+    CONTROL         "", IDC_STATIC_COLOR_BOX, "Static", SS_BLACKFRAME, 155, 70, 30, 14
     
-    GROUPBOX        "Appearance", -1, 7, 92, 286, 160
-    LTEXT           "Text Color:", -1, 15, 107, 50, 10
-    PUSHBUTTON      "Choose Color...", IDC_BUTTON_COLOR, 70, 105, 80, 14
-    CONTROL         "", IDC_STATIC_COLOR_BOX, "Static", SS_BLACKFRAME, 155, 105, 30, 14
-    
-    LTEXT           "Background Opacity:", -1, 15, 132, 70, 10
+    LTEXT           "Background Opacity:", -1, 15, 97, 70, 10
     CONTROL         "", IDC_SLIDER_ALPHA, "msctls_trackbar32",
-                    TBS_HORZ | TBS_AUTOTICKS | WS_TABSTOP, 90, 130, 130, 20
-    LTEXT           "255", IDC_STATIC_ALPHA_VALUE, 225, 132, 30, 10
+                    TBS_HORZ | TBS_AUTOTICKS | WS_TABSTOP, 90, 95, 130, 20
+    LTEXT           "255", IDC_STATIC_ALPHA_VALUE, 225, 97, 30, 10
     
-    LTEXT           "Text Opacity:", -1, 15, 157, 70, 10
+    LTEXT           "Text Opacity:", -1, 15, 122, 70, 10
     CONTROL         "", IDC_SLIDER_TEXT_ALPHA, "msctls_trackbar32",
-                    TBS_HORZ | TBS_AUTOTICKS | WS_TABSTOP, 90, 155, 130, 20
-    LTEXT           "255", IDC_STATIC_TEXT_ALPHA_VALUE, 225, 157, 30, 10
+                    TBS_HORZ | TBS_AUTOTICKS | WS_TABSTOP, 90, 120, 130, 20
+    LTEXT           "255", IDC_STATIC_TEXT_ALPHA_VALUE, 225, 122, 30, 10
     
-    LTEXT           "Font:", -1, 15, 187, 50, 10
-    COMBOBOX        IDC_COMBO_FONTNAME, 70, 185, 120, 100,
+    LTEXT           "Font:", -1, 15, 152, 50, 10
+    COMBOBOX        IDC_COMBO_FONTNAME, 70, 150, 120, 100,
                     CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     
-    LTEXT           "Font Size:", -1, 15, 212, 50, 10
-    COMBOBOX        IDC_COMBO_FONTSIZE, 70, 210, 80, 60,
+    LTEXT           "Font Size:", -1, 15, 177, 50, 10
+    COMBOBOX        IDC_COMBO_FONTSIZE, 70, 175, 80, 60,
                     CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     
-    LTEXT           "(Drag window edges to resize)", -1, 15, 232, 200, 10
+    LTEXT           "(Drag window edges to resize)", -1, 15, 197, 200, 10
     
-    GROUPBOX        "World Clock", -1, 7, 257, 286, 55
-    LTEXT           "Zone 1:", -1, 15, 274, 30, 10
-    COMBOBOX        IDC_COMBO_TZ1, 48, 272, 150, 150,
+    GROUPBOX        "World Clock", -1, 7, 222, 286, 75
+    LTEXT           "Zone 1:", -1, 15, 239, 30, 10
+    COMBOBOX        IDC_COMBO_TZ1, 48, 237, 150, 150,
                     CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Label:", -1, 205, 274, 25, 10
-    EDITTEXT        IDC_EDIT_LABEL1, 232, 272, 55, 12, ES_AUTOHSCROLL
-    LTEXT           "Zone 2:", -1, 15, 293, 30, 10
-    COMBOBOX        IDC_COMBO_TZ2, 48, 291, 150, 150,
+    LTEXT           "Label:", -1, 205, 239, 25, 10
+    EDITTEXT        IDC_EDIT_LABEL1, 232, 237, 55, 12, ES_AUTOHSCROLL
+    LTEXT           "Zone 2:", -1, 15, 258, 30, 10
+    COMBOBOX        IDC_COMBO_TZ2, 48, 256, 150, 150,
                     CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Label:", -1, 205, 293, 25, 10
-    EDITTEXT        IDC_EDIT_LABEL2, 232, 291, 55, 12, ES_AUTOHSCROLL
+    LTEXT           "Label:", -1, 205, 258, 25, 10
+    EDITTEXT        IDC_EDIT_LABEL2, 232, 256, 55, 12, ES_AUTOHSCROLL
+    LTEXT           "Main time size:", -1, 15, 279, 70, 10
+    CONTROL         "", IDC_SLIDER_SPLIT, "msctls_trackbar32",
+                    TBS_HORZ | TBS_AUTOTICKS | WS_TABSTOP, 90, 275, 130, 20
+    LTEXT           "70%", IDC_STATIC_SPLIT_VALUE, 225, 279, 30, 10
     
-    GROUPBOX        "Preview", -1, 7, 317, 286, 50
-    LTEXT           "14:35", IDC_STATIC_PREVIEW, 15, 332, 270, 30,
+    GROUPBOX        "Preview", -1, 7, 302, 286, 50
+    LTEXT           "14:35", IDC_STATIC_PREVIEW, 15, 317, 270, 30,
                     SS_CENTER
     
-    DEFPUSHBUTTON   "OK", IDOK, 70, 375, 50, 14
-    PUSHBUTTON      "Cancel", IDCANCEL, 130, 375, 50, 14
-    PUSHBUTTON      "Apply", IDAPPLY, 190, 375, 50, 14
+    DEFPUSHBUTTON   "OK", IDOK, 70, 360, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 130, 360, 50, 14
+    PUSHBUTTON      "Apply", IDAPPLY, 190, 360, 50, 14
 END
 
 // About Dialog

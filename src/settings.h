@@ -35,6 +35,7 @@ struct ClockSettings {
     bool clockVisible;
     wchar_t worldTz[WORLD_ZONE_COUNT][WORLD_TZ_KEY_LEN];        // Timezone key names; empty = off
     wchar_t worldLabel[WORLD_ZONE_COUNT][WORLD_LABEL_MAX + 1];  // Custom labels; empty = default
+    int worldSplit;             // Percent of height for the main time when the world row shows
 };
 
 // True if at least one world clock zone is configured.

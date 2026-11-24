@@ -13,7 +13,7 @@ Single executable, no installer, no runtime dependencies. Settings live in the r
 - **Floating window** — transparent, draggable from anywhere, optionally always on top
 - **Resizable** — drag any edge or corner; the font scales with the window
 - **Time format** — 12-hour (with AM/PM) or 24-hour, with optional seconds
-- **World clock** — up to two extra timezones with custom labels, shown on a smaller row below the main time; `+1`/`−1` marks a different date
+- **World clock** — up to two extra timezones with custom labels, shown on a smaller row below the main time as e.g. `10:30 CT`; `+1`/`−1` marks a different date
 - **Appearance**
   - Custom text color via an RGB picker with live preview
   - Independent background and text opacity (0–255 each), so text stays readable over a near-invisible window
@@ -59,7 +59,7 @@ Everything is in one dialog with a live preview:
 - **Text opacity** — 0 to 255; controls the digits independently of the background
 - **Font** and **Font size**
 - **Start with Windows**
-- **World Clock** — pick up to two timezones and give each a label (up to 16 characters); leave the label blank to use the first city in the timezone name. When a zone is set, the main time uses the top 70% of the window and the world row the rest
+- **World Clock** — pick up to two timezones and give each a label (up to 16 characters); leave the label blank to use the first city in the timezone name. **Main time size** sets how much of the window height the main time gets when a zone is set (50–90%, default 70%); the world row uses the rest
 
 **Apply** commits changes without closing the dialog.
 
@@ -79,6 +79,7 @@ Settings are stored under `HKEY_CURRENT_USER\Software\DesktopClock`:
 | `WindowX`, `WindowY`, `WindowWidth`, `WindowHeight` | Position and size |
 | `WorldTz1`, `WorldTz2` | Windows timezone key name (e.g. `Tokyo Standard Time`); empty = off |
 | `WorldLabel1`, `WorldLabel2` | Custom world clock label; empty = default |
+| `WorldSplit` | Main time share of the window height when world clocks show, 50–90 (default 70) |
 
 The startup entry, when enabled, is written to `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`.
 
@@ -158,8 +159,10 @@ Issues and pull requests are welcome. Please test changes on Windows 10 or 11, a
 
 ### v1.3.0
 
-- **World clock**: optionally show up to two extra timezones, each with a custom label, on a smaller row beneath the main time. Times follow the 12/24-hour setting (without seconds), handle daylight saving, and show `+1`/`−1` when the date differs from yours
-- New registry values `WorldTz1`, `WorldTz2`, `WorldLabel1`, `WorldLabel2`; existing settings are read unchanged
+- **World clock**: optionally show up to two extra timezones, each with a custom label, on a smaller row beneath the main time, e.g. `10:30 CT    17:30 London`. Times follow the 12/24-hour setting (without seconds), handle daylight saving, and show `+1`/`−1` when the date differs from yours
+- **Main time size** slider (50–90%) controls how the window height is split between the main time and the world row
+- The 12/24-hour, seconds, always-on-top and startup options are combined into one **General** section to keep the dialog compact
+- New registry values `WorldTz1`, `WorldTz2`, `WorldLabel1`, `WorldLabel2`, `WorldSplit`; existing settings are read unchanged
 
 ### v1.2.0
 

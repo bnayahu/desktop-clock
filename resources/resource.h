@@ -29,6 +29,8 @@
 #define IDC_EDIT_LABEL1         2017
 #define IDC_COMBO_TZ2           2018
 #define IDC_EDIT_LABEL2         2019
+#define IDC_SLIDER_SPLIT        2020
+#define IDC_STATIC_SPLIT_VALUE  2021
 
 // Control IDs for About Dialog
 #define IDC_STATIC_ABOUT_VERSION 2101
