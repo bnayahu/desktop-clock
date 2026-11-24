@@ -7,6 +7,12 @@
 
 using namespace Gdiplus;
 
+// Builds the world clock row text (e.g. "Tokyo 21:35 +1    NYC 08:35") for
+// the configured zones. Zones with empty or unknown timezone keys are
+// skipped. Returns false if no zone resolves.
+bool BuildWorldRow(const ClockSettings& s, const SYSTEMTIME& local,
+                   wchar_t* out, size_t outLen);
+
 class ClockRenderer {
 public:
     ClockRenderer();

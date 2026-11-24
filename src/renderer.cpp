@@ -1,5 +1,42 @@
 #include "renderer.h"
+#include "world_clock.h"
+#include "world_format.h"
 #include <stdio.h>
+
+// Share of the client height given to the main time when the world row shows.
+static const float MAIN_ROW_SHARE = 0.70f;
+// World row font size relative to its row height, and the minimum size.
+static const float WORLD_FONT_SHARE = 0.60f;
+static const float WORLD_FONT_MIN_PX = 8.0f;
+// Fraction of the window width the world row may occupy.
+static const float WORLD_ROW_WIDTH_SHARE = 0.95f;
+
+bool BuildWorldRow(const ClockSettings& s, const SYSTEMTIME& local,
+                   wchar_t* out, size_t outLen) {
+    wchar_t entries[WORLD_ZONE_COUNT][64];
+    bool any = false;
+
+    for (int i = 0; i < WORLD_ZONE_COUNT; i++) {
+        entries[i][0] = L'\0';
+        SYSTEMTIME zone;
+        if (!GetZoneTime(s.worldTz[i], &zone)) continue;
+
+        wchar_t displayName[128] = L"";
+        GetZoneDisplayName(s.worldTz[i], displayName, 128);
+        wchar_t label[WORLD_LABEL_MAX + 1];
+        ResolveLabel(s.worldLabel[i], displayName, label, WORLD_LABEL_MAX + 1);
+
+        int offset = DayOffset(local.wYear, local.wMonth, local.wDay,
+                               zone.wYear, zone.wMonth, zone.wDay);
+        FormatWorldEntry(entries[i], 64, label, zone.wHour, zone.wMinute,
+                         s.timeFormat == TIME_12H, offset);
+        any = true;
+    }
+
+    if (!any) return false;
+    JoinWorldEntries(entries[0], entries[1], out, outLen);
+    return true;
+}
 
 ClockRenderer::ClockRenderer() : m_gdiplusToken(0), m_initialized(false) {
 }
@@ -91,7 +128,8 @@ RectF ClockRenderer::CenterText(Graphics& graphics, Font& font,
     if (x < 0) x = 0;
     if (y < 0) y = 0;
     
-    return RectF(x, y, boundingBox.Width, boundingBox.Height);
+    // Offset into the target rect (a no-op for the full client rect).
+    return RectF(x + rect->left, y + rect->top, boundingBox.Width, boundingBox.Height);
 }
 
 void ClockRenderer::Render(HDC hdc, const RECT* rect, const ClockSettings& settings) {
@@ -116,8 +154,21 @@ void ClockRenderer::Render(HDC hdc, const RECT* rect, const ClockSettings& setti
     wchar_t timeStr[32];
     FormatTimeString(timeStr, 32, &st, settings);
     
-    // Calculate font size based on window size
-    int fontSize = CalculateFontSize(rect, settings.fontSize);
+    // With world clocks configured, the main time takes the top share of the
+    // window and the world row the rest. Otherwise the layout is unchanged.
+    wchar_t worldRow[160];
+    bool showWorld = BuildWorldRow(settings, st, worldRow, 160);
+    
+    RECT mainRect = *rect;
+    RECT worldRect = *rect;
+    if (showWorld) {
+        int clientHeight = rect->bottom - rect->top;
+        mainRect.bottom = rect->top + (int)(clientHeight * MAIN_ROW_SHARE);
+        worldRect.top = mainRect.bottom;
+    }
+    
+    // Calculate font size based on (main row) size
+    int fontSize = CalculateFontSize(&mainRect, settings.fontSize);
     
     // Create font with user-selected font name
     Font font(settings.fontName, (REAL)fontSize, FontStyleRegular, UnitPixel);
@@ -130,9 +181,30 @@ void ClockRenderer::Render(HDC hdc, const RECT* rect, const ClockSettings& setti
     SolidBrush brush(color);
     
     // Center and draw text
-    RectF layoutRect = CenterText(graphics, font, timeStr, rect);
+    RectF layoutRect = CenterText(graphics, font, timeStr, &mainRect);
     graphics.DrawString(timeStr, -1, &font, layoutRect,
                        StringFormat::GenericDefault(), &brush);
+    
+    if (showWorld) {
+        // Size the world row to its band, then shrink it to fit the width.
+        float desired = (worldRect.bottom - worldRect.top) * WORLD_FONT_SHARE;
+        if (desired < WORLD_FONT_MIN_PX) desired = WORLD_FONT_MIN_PX;
+        
+        Font probe(settings.fontName, desired, FontStyleRegular, UnitPixel);
+        RectF unbounded(0, 0, 100000.0f, 100000.0f);
+        RectF measured;
+        graphics.MeasureString(worldRow, -1, &probe, unbounded,
+                              StringFormat::GenericDefault(), &measured);
+        
+        float available = (rect->right - rect->left) * WORLD_ROW_WIDTH_SHARE;
+        float worldSize = FitFontToWidth(desired, measured.Width, available,
+                                         WORLD_FONT_MIN_PX);
+        
+        Font worldFont(settings.fontName, worldSize, FontStyleRegular, UnitPixel);
+        RectF worldLayout = CenterText(graphics, worldFont, worldRow, &worldRect);
+        graphics.DrawString(worldRow, -1, &worldFont, worldLayout,
+                           StringFormat::GenericDefault(), &brush);
+    }
 }
 
 // Made with Bob
